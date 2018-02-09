@@ -81,6 +81,11 @@ export class BaseContainer {
      * @private
      */
     this.ee = ee({});
+
+    /**
+     * @private
+     */
+    this.withSkygearHeader = true;
   }
 
   /**
@@ -115,6 +120,9 @@ export class BaseContainer {
     }
     if (options.endPoint) {
       this.endPoint = options.endPoint;
+    }
+    if (options.withSkygearHeader) {
+      this.withSkygearHeader = options.withSkygearHeader;
     }
 
     return Promise.resolve(this);
@@ -174,14 +182,21 @@ export class BaseContainer {
     }
 
     let _action = action.replace(/:/g, '/');
-    return this.request
-      .post(this.url + _action)
-      .set({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+    let headers = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    };
+
+    if (this.withSkygearHeader) {
+      headers = Object.assign(headers, {
         'X-Skygear-API-Key': this.apiKey,
         'X-Skygear-SDK-Version': `skygear-SDK-JS/${this.VERSION}`
       });
+    }
+
+    return this.request
+      .post(this.url + _action)
+      .set(headers);
   }
 
   _prepareRequestData(action, data) {
@@ -514,7 +529,7 @@ export default class Container extends BaseContainer {
   _prepareRequestObject(action, data) {
     let requestObject = super._prepareRequestObject(action, data);
 
-    if (this.auth.accessToken) {
+    if (this.auth.accessToken && this.withSkygearHeader) {
       requestObject = requestObject
         .set('X-Skygear-Access-Token', this.auth.accessToken);
     }
