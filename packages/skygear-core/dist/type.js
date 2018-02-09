@@ -1,0 +1,111 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Copyright 2015 Oursky Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Sequence
+ *
+ * A model representing a auto-incrementing sequence in Skygear record.
+ */
+var Sequence = exports.Sequence = function () {
+
+  /**
+   * Constructs a new Sequence object.
+   */
+  function Sequence() {
+    _classCallCheck(this, Sequence);
+  }
+
+  /**
+   * Serializes Sequence to a JSON object.
+   *
+   * @return {Object} the JSON object
+   */
+
+
+  _createClass(Sequence, [{
+    key: 'toJSON',
+    value: function toJSON() {
+      return {
+        $type: 'seq'
+      };
+    }
+  }]);
+
+  return Sequence;
+}();
+
+/**
+ * UnknownValue
+ *
+ * A model representing an unknown type of value in Skygear record.
+ */
+
+
+var UnknownValue = exports.UnknownValue = function () {
+
+  /**
+   * Constructs a new UnknownValue object.
+   *
+   * @param {String} underlyingType - underlying type of the value
+   */
+  function UnknownValue(underlyingType) {
+    _classCallCheck(this, UnknownValue);
+
+    this.underlyingType = underlyingType;
+  }
+
+  /**
+   * Serializes UnknownValue to a JSON object.
+   *
+   * @return {Object} the JSON object
+   */
+
+
+  _createClass(UnknownValue, [{
+    key: 'toJSON',
+    value: function toJSON() {
+      return {
+        $type: 'unknown',
+        $underlying_type: this.underlyingType //eslint-disable-line camelcase
+      };
+    }
+
+    /**
+     * Constructs a new UnknownValue object from JSON object.
+     *
+     * @param {Object} attrs - the JSON object
+     * @param {String} attrs.$underlying_type - underlying type of the value
+     */
+
+  }], [{
+    key: 'fromJSON',
+    value: function fromJSON(attrs) {
+      return new UnknownValue(attrs.$underlying_type);
+    }
+  }]);
+
+  return UnknownValue;
+}();
