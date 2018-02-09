@@ -81,6 +81,11 @@ export class BaseContainer {
      * @private
      */
     this.ee = ee({});
+
+    /**
+     * @private
+     */
+    this.simpleRequest = false;
   }
 
   /**
@@ -107,6 +112,7 @@ export class BaseContainer {
    * @param {Object} options - configuration options of the skygear container
    * @param {String} options.apiKey - api key
    * @param {String} options.endPoint - end point
+   * @param {Boolean} options.simpleRequest - simple request
    * @return {Promise<BaseContainer>} promise with the skygear container
    */
   config(options) {
@@ -115,6 +121,9 @@ export class BaseContainer {
     }
     if (options.endPoint) {
       this.endPoint = options.endPoint;
+    }
+    if (options.simpleRequest !== undefined) {
+      this.simpleRequest = options.simpleRequest;
     }
 
     return Promise.resolve(this);
@@ -139,11 +148,26 @@ export class BaseContainer {
   }
 
   /**
+   * Sets the request made by the continer to be simple request.
+   *
+   * @param  {Boolean} simpleRequest - a flag to determine the container should make a simple request or not
+   */
+  configSimpleRequest(simpleRequest) {
+    this.simpleRequest = simpleRequest;
+  }
+
+  /**
    * @private
    */
   makeRequest(action, data) {
     let requestObject = this._prepareRequestObject(action, data);
     let requestData = this._prepareRequestData(action, data);
+
+    if (this.simpleRequest) {
+      requestObject.serialize((o) => {
+        return JSON.stringify(o);
+      });
+    }
 
     return this._handleResponse(new Promise((resolve) => {
       requestObject.send(requestData).end((err, res) => {
@@ -174,14 +198,25 @@ export class BaseContainer {
     }
 
     let _action = action.replace(/:/g, '/');
-    return this.request
-      .post(this.url + _action)
-      .set({
+    let headers = {
+      Accept: 'application/json'
+    };
+
+    if (!this.simpleRequest) {
+      headers = Object.assign(headers, {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
         'X-Skygear-API-Key': this.apiKey,
         'X-Skygear-SDK-Version': `skygear-SDK-JS/${this.VERSION}`
       });
+    } else {
+      headers = Object.assign(headers, {
+        'Content-Type': 'text/plain;charset=UTF-8'
+      });
+    }
+
+    return this.request
+      .post(this.url + _action)
+      .set(headers);
   }
 
   _prepareRequestData(action, data) {
@@ -514,7 +549,7 @@ export default class Container extends BaseContainer {
   _prepareRequestObject(action, data) {
     let requestObject = super._prepareRequestObject(action, data);
 
-    if (this.auth.accessToken) {
+    if (this.auth.accessToken && !this.simpleRequest) {
       requestObject = requestObject
         .set('X-Skygear-Access-Token', this.auth.accessToken);
     }
